@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PAI Kelas 6 - Interaktif | Canva Code</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Simple confetti using emojis */
+    .confetti {
+      position: fixed;
+      top: 0; left: 0; right: 0; pointer-events: none;
+      display: grid; place-items: center; z-index: 50;
+      animation: pop 0.8s ease-out both;
+      font-size: 28px;
+    }
+    @keyframes pop { 
+      0% { transform: translateY(0) scale(0.8); opacity: 0.0 }
+      30% { transform: translateY(8px) scale(1.05); opacity: 1 }
+      100% { transform: translateY(0) scale(1); opacity: 0 }
+    }
+    /* Drop targets made larger and vertical to avoid overlap */
+    .drop-target { display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
+    .drop-target .drag { width: 100%; }
+    /* Make Mukallaf & Haid-Junub drop areas larger to fit multiple */
+    #mukallaf .drop-target, #haid-junub .drop-target { min-height: 220px; padding: 12px; overflow-y: auto; }
+    /* Drag-and-drop highlight */
+    .drop-target.drag-over { outline: 3px dashed rgba(255,255,255,0.7); }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-teal-600 via-sky-600 to-indigo-700 text-white selection:bg-yellow-300 selection:text-teal-900">
+  <!-- Background decorative shapes -->
+  <div class="pointer-events-none fixed inset-0 opacity-30">
+    <svg class="absolute -top-16 -left-16 w-64 h-64" viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fcd34d"/>
+          <stop offset="100%" stop-color="#34d399"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g1)" d="M42.1,-66.5C54.5,-59.2,64.8,-47.7,71.5,-34.3C78.2,-20.8,81.4,-5.5,78.2,8.8C75,23.2,65.5,36.6,54,49.8C42.6,62.9,29.2,75.9,13.1,81.3C-3.1,86.8,-22,84.8,-36.9,76.7C-51.8,68.6,-62.9,54.4,-69.7,38.5C-76.5,22.6,-79.1,5.1,-76.3,-11.3C-73.4,-27.8,-65.1,-43,-53.1,-52.4C-41.1,-61.8,-25.4,-65.3,-10.2,-69.2C5,-73.2,20,-77.7,42.1,-66.5Z" transform="translate(100 100)" />
+    </svg>
+    <svg class="absolute -bottom-24 -right-16 w-72 h-72" viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#93c5fd"/>
+          <stop offset="100%" stop-color="#f9a8d4"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#g2)" d="M33.8,-55.6C46.2,-48.2,60.3,-41.8,68.6,-31.1C76.9,-20.5,79.3,-5.6,76.7,8.2C74.2,22,66.6,34.6,56.4,45.8C46.3,57,33.6,66.8,19.7,70.3C5.8,73.8,-9.3,71.1,-24.3,66.1C-39.3,61.1,-54.2,53.9,-62.6,41.9C-71,29.9,-72.8,13,-70.7,-2.7C-68.6,-18.5,-62.7,-33.1,-52.6,-42.8C-42.5,-52.6,-28.2,-57.6,-14.2,-63.7C-0.2,-69.8,14.6,-76.9,27.2,-73.1C39.8,-69.2,50.1,-54.4,33.8,-55.6Z" transform="translate(100 100)" />
+    </svg>
+  </div>
+
+  <main class="relative mx-auto max-w-6xl px-4 py-6 md:py-10">
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">PAI Kelas 6 • Interaktif</h1>
+        <p class="mt-1 text-white/80">Belajar Islam & Iman, Al-Qur'an vs Hadis, QS Al-‘Alaq 1–5, dan akhlak mulia — dengan latihan seru.</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3 flex items-center gap-3">
+          <div class="relative">
+            <svg viewBox="0 0 36 36" class="w-12 h-12">
+              <path d="M18 2 a 16 16 0 1 1 0 32 a 16 16 0 1 1 0 -32" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
+              <path id="progressArc" d="M18 2 a 16 16 0 1 1 0 32 a 16 16 0 1 1 0 -32" fill="none" stroke="#fde68a" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 100"/>
+            </svg>
+            <div class="absolute inset-0 grid place-items-center text-sm font-semibold" id="progressText">0%</div>
+          </div>
+          <div>
+            <p class="text-sm leading-tight">Kemajuan</p>
+            <p class="text-xs text-white/80">Selesaikan kuis & tantangan</p>
+          </div>
+        </div>
+        <button id="resetBtn" class="bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Reset Kemajuan</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="mt-6 grid grid-cols-2 md:grid-cols-7 gap-2">
+      <button data-tab="islam-iman" class="tab-btn active bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>🕋</span><span class="font-semibold">Islam & Iman</span></div>
+        <p class="text-xs text-white/80">Inti agama & rukun iman</p>
+      </button>
+      <button data-tab="quran-hadis" class="tab-btn bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>📖</span><span class="font-semibold">Al-Qur'an vs Hadis</span></div>
+        <p class="text-xs text-white/80">Perbedaan & peran</p>
+      </button>
+      <button data-tab="alaq" class="tab-btn bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>📝</span><span class="font-semibold">QS Al-‘Alaq 1–5</span></div>
+        <p class="text-xs text-white/80">Wahyu pertama</p>
+      </button>
+      <button data-tab="rangkuman" class="tab-btn bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>🌟</span><span class="font-semibold">Rangkuman & Latihan</span></div>
+        <p class="text-xs text-white/80">Asbabun nuzul, Ali Imran 134, Amarah</p>
+      </button>
+      <button data-tab="mukallaf" class="tab-btn bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>🧠</span><span class="font-semibold">Mukallaf</span></div>
+        <p class="text-xs text-white/80">Siapa yang sudah wajib?</p>
+      </button>
+      <button data-tab="haid-junub" class="tab-btn bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>🚿</span><span class="font-semibold">Haid & Junub</span></div>
+        <p class="text-xs text-white/80">Hadas besar & mandinya</p>
+      </button>
+      <button data-tab="aurat" class="tab-btn bg-white/15 hover:bg-white/25 rounded-xl px-4 py-3 text-left transition">
+        <div class="flex items-center gap-2"><span>🧕</span><span class="font-semibold">Batasan Aurat</span></div>
+        <p class="text-xs text-white/80">Laki-laki & perempuan</p>
+      </button>
+    </nav>
+
+    <!-- Content -->
+    <section id="islam-iman" class="tab-panel mt-6 grid lg:grid-cols-2 gap-6">
+      <!-- Materi -->
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6">
+        <h2 class="text-2xl font-bold">Islam dan Iman</h2>
+        <p class="mt-2 text-white/90">Islam artinya tunduk, patuh, dan berserah diri kepada Allah Swt. Dalam syariat, Islam adalah agama yang diturunkan kepada Nabi Muhammad Saw. sebagai petunjuk hidup. Intinya: menjalankan perintah-Nya dan menjauhi larangan-Nya.</p>
+        <div class="mt-4 grid sm:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-emerald-500/20 p-4">
+            <h3 class="font-semibold">Islam (amal lahiriah)</h3>
+            <ul class="list-disc list-inside text-white/90 mt-2 space-y-1">
+              <li>Salat</li>
+              <li>Puasa</li>
+              <li>Zakat</li>
+              <li>Haji</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-indigo-500/20 p-4">
+            <h3 class="font-semibold">Iman (keyakinan batin)</h3>
+            <p class="mt-2 text-white/90">Percaya dalam hati, diucapkan, dan dibuktikan dengan perbuatan. Rukun iman ada enam.</p>
+          </div>
+        </div>
+
+        <details class="mt-4 bg-white/10 rounded-xl p-4">
+          <summary class="cursor-pointer font-semibold">6 Rukun Iman</summary>
+          <ol class="list-decimal list-inside mt-2 space-y-1 text-white/90">
+            <li>Iman kepada Allah Swt.</li>
+            <li>Iman kepada malaikat-malaikat Allah.</li>
+            <li>Iman kepada kitab-kitab Allah.</li>
+            <li>Iman kepada rasul-rasul Allah.</li>
+            <li>Iman kepada hari akhir (kiamat).</li>
+            <li>Iman kepada qada dan qadar.</li>
+          </ol>
+        </details>
+
+        <div class="mt-4 rounded-xl bg-white/10 p-4">
+          <p class="text-white/90">Islam dan iman saling melengkapi. Tidak ada iman tanpa Islam; Islam tidak sempurna tanpa iman.</p>
+        </div>
+      </article>
+
+      <!-- Interaktif -->
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Latihan Cepat</h3>
+        <!-- Quiz 1 -->
+        <form id="quiz-ii" class="space-y-3">
+          <p class="font-semibold">1) Iman itu terutama berkaitan dengan...</p>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="q1" value="a" class="accent-yellow-300"> Perbuatan lahir, seperti salat
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="q1" value="b" class="accent-yellow-300"> Keyakinan dalam hati, lisan, dan amal
+          </label>
+          <button class="mt-1 bg-yellow-300 text-teal-900 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-200 transition">Cek Jawaban</button>
+          <div id="quiz-ii-msg" class="text-sm"></div>
+        </form>
+        <hr class="border-white/20">
+        <!-- Match rukun iman -->
+        <div>
+          <p class="font-semibold mb-2">2) Pasangkan: Tarik jawaban ke kotak yang tepat</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="space-y-2">
+              <div class="drop-target bg-white/10 rounded-xl p-3" data-target="kitab">📚 Kitab-kitab Allah</div>
+              <div class="drop-target bg-white/10 rounded-xl p-3" data-target="qadar">📌 Qada & Qadar</div>
+              <div class="drop-target bg-white/10 rounded-xl p-3" data-target="malikat">👼 Malaikat</div>
+            </div>
+            <div class="space-y-2" id="drag-bank">
+              <div draggable="true" data-answer="malikat" class="drag bg-white text-teal-800 rounded-xl p-2 cursor-move">Makhluk taat yang menyampaikan wahyu</div>
+              <div draggable="true" data-answer="qadar" class="drag bg-white text-teal-800 rounded-xl p-2 cursor-move">Ketentuan baik dan buruk dari Allah</div>
+              <div draggable="true" data-answer="kitab" class="drag bg-white text-teal-800 rounded-xl p-2 cursor-move">Taurat, Zabur, Injil, Al-Qur'an</div>
+            </div>
+          </div>
+          <button id="check-match" class="mt-3 bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Periksa</button>
+          <div id="match-msg" class="mt-2 text-sm"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="quran-hadis" class="tab-panel mt-6 hidden grid lg:grid-cols-2 gap-6">
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6">
+        <h2 class="text-2xl font-bold">Perbedaan Al-Qur'an dan Hadis</h2>
+        <div class="mt-3 space-y-3">
+          <div class="rounded-xl bg-indigo-500/20 p-4">
+            <h3 class="font-semibold">Al-Qur'an</h3>
+            <p class="mt-1 text-white/90">Firman Allah yang diturunkan kepada Nabi Muhammad Saw. melalui Malaikat Jibril. Pedoman hidup utama, keasliannya terjaga.</p>
+          </div>
+          <div class="rounded-xl bg-emerald-500/20 p-4">
+            <h3 class="font-semibold">Hadis</h3>
+            <p class="mt-1 text-white/90">Ucapan, perbuatan, dan ketetapan Nabi Muhammad Saw. Berfungsi menjelaskan dan menguatkan Al-Qur'an.</p>
+          </div>
+          <div class="rounded-xl bg-white/10 p-4">
+            <p class="text-white/90">Sederhananya: Al-Qur'an = firman Allah; Hadis = tuntunan Nabi yang menjelaskan Al-Qur'an.</p>
+          </div>
+        </div>
+      </article>
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Coba Tebak</h3>
+        <form id="quiz-qh" class="space-y-3">
+          <p class="font-semibold">1) Pernyataan ini benar atau salah? "Setiap kata dalam Al-Qur'an berasal langsung dari Allah."</p>
+          <div class="flex gap-2">
+            <button data-v="benar" class="bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Benar</button>
+            <button data-v="salah" class="bg-white/20 font-semibold px-4 py-2 rounded-xl hover:bg-white/30 transition">Salah</button>
+          </div>
+          <div id="qh-msg" class="text-sm"></div>
+        </form>
+        <hr class="border-white/20">
+        <div>
+          <p class="font-semibold">2) Seret ke kategori yang tepat</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="drop-target bg-white/10 rounded-xl p-3 min-h-[54px]" data-target="quran">📖 Al-Qur'an</div>
+            <div class="drop-target bg-white/10 rounded-xl p-3 min-h-[54px]" data-target="hadis">🧭 Hadis</div>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-2" id="drag-qh">
+            <div draggable="true" data-answer="quran" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Firman Allah</div>
+            <div draggable="true" data-answer="hadis" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Perkataan Nabi</div>
+            <div draggable="true" data-answer="hadis" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Menjelaskan ayat</div>
+          </div>
+          <button id="check-qh" class="mt-3 bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Periksa</button>
+          <div id="qh2-msg" class="mt-2 text-sm"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="alaq" class="tab-panel mt-6 hidden grid lg:grid-cols-2 gap-6">
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6">
+        <h2 class="text-2xl font-bold">QS. Al-‘Alaq Ayat 1–5</h2>
+        <p class="mt-2 text-white/90">Wahyu pertama turun saat Nabi Muhammad Saw. berusia 40 tahun di Gua Hira. Malaikat Jibril memerintah, “Iqra’!” (Bacalah!). Ini menandai awal kenabian dan menegaskan pentingnya belajar.</p>
+        <div class="mt-4 grid gap-3">
+          <div class="bg-white/10 rounded-xl p-4">
+            <h3 class="font-semibold">Pesan utama</h3>
+            <ul class="list-disc list-inside mt-1 space-y-1 text-white/90">
+              <li>Perintah membaca/belajar dengan menyebut nama Allah.</li>
+              <li>Ilmu berasal dari Allah; Allah mengajari manusia yang tidak tahu.</li>
+              <li>Membaca bukan hanya tulisan, juga tanda-tanda kekuasaan Allah.</li>
+            </ul>
+          </div>
+          <div class="bg-white/10 rounded-xl p-4">
+            <h3 class="font-semibold">Refleksi singkat</h3>
+            <p class="mt-1 text-white/90">Ilmu yang bermanfaat harus dilandasi iman. Belajar mendekatkan kita kepada Allah.</p>
+          </div>
+        </div>
+      </article>
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Latihan Pemahaman</h3>
+        <!-- Fill in the blanks -->
+        <form id="quiz-alaq" class="space-y-3">
+          <p class="font-semibold">Lengkapi kalimat berikut:</p>
+          <p class="text-white/90">Membaca harus diawali dengan menyebut nama <input type="text" name="a" placeholder="..." class="rounded-md px-2 py-1 text-teal-900">, karena <input type="text" name="b" placeholder="..." class="rounded-md px-2 py-1 text-teal-900"> yang bermanfaat dilandasi iman.</p>
+          <button class="bg-yellow-300 text-teal-900 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-200 transition">Cek Jawaban</button>
+          <div id="alaq-msg" class="text-sm"></div>
+        </form>
+        <hr class="border-white/20">
+        <!-- Stepper Asbabun Nuzul -->
+        <div>
+          <h4 class="font-semibold mb-2">Asbabun Nuzul (Step-by-step)</h4>
+          <ol id="steps-alaq" class="space-y-2">
+            <li class="step bg-white/10 rounded-xl p-3" data-i="0">Nabi berkhalwat di Gua Hira.</li>
+            <li class="step bg-white/10 rounded-xl p-3 opacity-60" data-i="1">Jibril datang dan memerintah: “Iqra’!”</li>
+            <li class="step bg-white/10 rounded-xl p-3 opacity-60" data-i="2">Nabi menjawab: “Aku tidak bisa membaca.”</li>
+            <li class="step bg-white/10 rounded-xl p-3 opacity-60" data-i="3">Perintah diulang tiga kali.</li>
+            <li class="step bg-white/10 rounded-xl p-3 opacity-60" data-i="4">Jibril membacakan QS. Al-‘Alaq ayat 1–5.</li>
+          </ol>
+          <div class="mt-3 flex gap-2">
+            <button id="prev-step" class="bg-white/20 px-4 py-2 rounded-xl hover:bg-white/30 transition">Sebelumnya</button>
+            <button id="next-step" class="bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Berikutnya</button>
+          </div>
+          <div id="step-msg" class="mt-2 text-sm"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="rangkuman" class="tab-panel mt-6 hidden grid lg:grid-cols-2 gap-6">
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h2 class="text-2xl font-bold">Rangkuman Materi</h2>
+        <div class="rounded-xl bg-white/10 p-4">
+          <h3 class="font-semibold">1) Asbabun Nuzul QS. Al-‘Alaq 1–5</h3>
+          <p class="mt-1 text-white/90">Turun saat Nabi usia 40 tahun di Gua Hira. Awal kenabian, menekankan pentingnya ilmu.</p>
+        </div>
+        <div class="rounded-xl bg-white/10 p-4">
+          <h3 class="font-semibold">2) QS. Ali Imran 134</h3>
+          <ul class="list-disc list-inside mt-1 space-y-1 text-white/90">
+            <li>Berinfak saat lapang maupun sempit</li>
+            <li>Menahan amarah</li>
+            <li>Memaafkan orang lain</li>
+            <li>Berbuat baik</li>
+          </ul>
+        </div>
+        <div class="rounded-xl bg-white/10 p-4">
+          <h3 class="font-semibold">3) Mengendalikan Amarah</h3>
+          <ul class="list-disc list-inside mt-1 space-y-1 text-white/90">
+            <li>Jika berdiri → duduk → berbaring</li>
+            <li>Segera berwudu</li>
+            <li>Diam, hindari kata kasar</li>
+            <li>Ucapkan ta’awuz: “A‘udzu billahi minasy-syaithanirrajim”</li>
+          </ul>
+        </div>
+      </article>
+
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Latihan & Simulasi</h3>
+
+        <!-- Skenario Ali Imran 134 -->
+        <div class="bg-white/10 rounded-xl p-4">
+          <p class="font-semibold">Skenario: Temanmu tak sengaja menyenggol bukumu hingga jatuh. Apa sikap terbaik?</p>
+          <div class="mt-2 grid gap-2">
+            <button class="btn-skenario bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition" data-correct="false">Marah dan membalas</button>
+            <button class="btn-skenario bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition" data-correct="true">Menahan marah dan memaafkan</button>
+            <button class="btn-skenario bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition" data-correct="true">Membantu merapikan dan berbuat baik</button>
+          </div>
+          <div id="skenario-msg" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Timer Tenang -->
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold">Timer Tenang 10 Detik</h4>
+            <button id="start-timer" class="bg-yellow-300 text-teal-900 font-semibold px-3 py-1.5 rounded-lg hover:bg-yellow-200 transition">Mulai</button>
+          </div>
+          <p class="text-white/90 mt-1 text-sm">Tarik napas… hembuskan… fokus pada ketenangan.</p>
+          <div class="mt-3 w-full bg-white/20 rounded-full h-3 overflow-hidden">
+            <div id="timer-bar" class="h-3 bg-yellow-300 w-0"></div>
+          </div>
+          <div id="timer-text" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Drag daftar langkah amarah -->
+        <div class="bg-white/10 rounded-xl p-4">
+          <p class="font-semibold">Urutkan langkah saat marah (seret untuk menyusun):</p>
+          <ul id="order-anger" class="mt-2 space-y-2">
+            <!-- Minimal data, diacak saat load -->
+          </ul>
+          <div class="mt-2 flex gap-2">
+            <button id="shuffle-anger" class="bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition">Acak</button>
+            <button id="check-anger" class="bg-white text-teal-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-yellow-300 hover:text-teal-900 transition">Periksa</button>
+          </div>
+          <div id="anger-msg" class="mt-2 text-sm"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Mukallaf Section -->
+    <section id="mukallaf" class="tab-panel mt-6 hidden grid lg:grid-cols-2 gap-6">
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h2 class="text-2xl font-bold">Memahami Mukallaf</h2>
+        <p class="text-white/90">Mukallaf adalah orang yang sudah dibebani kewajiban syariat. Artinya, ia sudah berkewajiban menjalankan perintah dan menjauhi larangan Allah.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-emerald-500/20 p-4">
+            <h3 class="font-semibold">Syarat utama</h3>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-white/90">
+              <li>Baligh (cukup usia/tanda-tandanya)</li>
+              <li>Berakal (mampu membedakan baik-buruk)</li>
+              <li>Sampainya dakwah (tahu kewajiban)</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-indigo-500/20 p-4">
+            <h3 class="font-semibold">Contoh kewajiban</h3>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-white/90">
+              <li>Salat 5 waktu</li>
+              <li>Puasa Ramadan</li>
+              <li>Menjauhi yang haram</li>
+            </ul>
+          </div>
+        </div>
+        <div class="rounded-xl bg-white/10 p-4">
+          <p class="text-white/90">Anak yang belum baligh belum mukallaf, namun tetap diajari dan dibiasakan beribadah.</p>
+        </div>
+      </article>
+
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Latihan Mukallaf</h3>
+        <!-- Pilih Gambar/Kartu -->
+        <div>
+          <p class="font-semibold">1) Siapa yang sudah termasuk mukallaf?</p>
+          <div class="mt-2 grid sm:grid-cols-3 gap-3" id="cards-mukallaf">
+            <button class="card-muk bg-white text-teal-800 rounded-xl p-3 text-left hover:bg-yellow-300 hover:text-teal-900 transition" data-correct="false">Anak 9 tahun belajar salat</button>
+            <button class="card-muk bg-white text-teal-800 rounded-xl p-3 text-left hover:bg-yellow-300 hover:text-teal-900 transition" data-correct="true">Remaja sudah baligh dan berakal</button>
+            <button class="card-muk bg-white text-teal-800 rounded-xl p-3 text-left hover:bg-yellow-300 hover:text-teal-900 transition" data-correct="false">Orang tidur lelap</button>
+          </div>
+          <div id="muk-msg1" class="mt-2 text-sm"></div>
+        </div>
+        <hr class="border-white/20">
+        <!-- Seret & Letak -->
+        <div>
+          <p class="font-semibold">2) Seret ke kolom: Syarat Mukallaf vs Bukan</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="drop-target bg-white/10 rounded-xl p-3 min-h-[64px]" data-target="syarat">✅ Syarat Mukallaf</div>
+            <div class="drop-target bg-white/10 rounded-xl p-3 min-h-[64px]" data-target="bukan">⛔ Bukan Syarat</div>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-2" id="drag-muk">
+            <div draggable="true" data-answer="syarat" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Baligh</div>
+            <div draggable="true" data-answer="syarat" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Berakal</div>
+            <div draggable="true" data-answer="bukan" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Kaya raya</div>
+            <div draggable="true" data-answer="bukan" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Berasal dari kota besar</div>
+          </div>
+          <button id="check-muk" class="mt-3 bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Periksa</button>
+          <div id="muk-msg2" class="mt-2 text-sm"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Haid & Junub Section -->
+    <section id="haid-junub" class="tab-panel mt-6 hidden grid lg:grid-cols-2 gap-6">
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h2 class="text-2xl font-bold">Haid & Junub dalam Syariat</h2>
+        <p class="text-white/90">Haid adalah darah alami yang keluar dari perempuan pada waktu tertentu. Junub adalah keadaan hadas besar karena keluarnya mani atau hubungan suami-istri. Keduanya membutuhkan mandi wajib untuk kembali suci.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-emerald-500/20 p-4">
+            <h3 class="font-semibold">Yang tidak boleh saat haid</h3>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-white/90">
+              <li>Salat dan puasa</li>
+              <li>Tawaf di Ka'bah</li>
+              <li>Jima' (hubungan suami-istri)</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-indigo-500/20 p-4">
+            <h3 class="font-semibold">Tentang junub</h3>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-white/90">
+              <li>Wajib mandi junub</li>
+              <li>Tidak boleh salat/menyentuh mushaf sebelum mandi</li>
+              <li>Boleh berzikir & doa</li>
+            </ul>
+          </div>
+        </div>
+        <div class="rounded-xl bg-white/10 p-4">
+          <h3 class="font-semibold">Langkah Mandi Wajib</h3>
+          <ol class="list-decimal list-inside mt-2 space-y-1 text-white/90">
+            <li>Niat mandi wajib karena Allah</li>
+            <li>Mencuci tangan dan kemaluan</li>
+            <li>Berwudu</li>
+            <li>Mengguyur seluruh tubuh tanpa tersisa</li>
+          </ol>
+        </div>
+      </article>
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Latihan Haid & Junub</h3>
+        <form id="quiz-hj" class="space-y-3">
+          <p class="font-semibold">1) Apa yang wajib dilakukan ketika junub?</p>
+          <div class="grid sm:grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 bg-white/10 rounded-xl p-3 cursor-pointer">
+              <input type="radio" name="hj1" value="a" class="accent-yellow-300"> Tayamum saja
+            </label>
+            <label class="flex items-center gap-2 bg-white/10 rounded-xl p-3 cursor-pointer">
+              <input type="radio" name="hj1" value="b" class="accent-yellow-300"> Mandi wajib (mandi junub)
+            </label>
+          </div>
+          <button class="bg-yellow-300 text-teal-900 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-200 transition">Cek Jawaban</button>
+          <div id="hj-msg" class="text-sm"></div>
+        </form>
+        <hr class="border-white/20">
+        <div>
+          <p class="font-semibold">2) Seret ke kolom yang tepat</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="drop-target bg-white/10 rounded-xl p-3 min-h-[64px]" data-target="haid">🩸 Haid</div>
+            <div class="drop-target bg-white/10 rounded-xl p-3 min-h-[64px]" data-target="junub">🚿 Junub</div>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-2" id="drag-hj">
+            <div draggable="true" data-answer="haid" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Tidak salat & puasa sementara</div>
+            <div draggable="true" data-answer="junub" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Wajib mandi karena keluar mani</div>
+            <div draggable="true" data-answer="junub" class="drag bg-white text-teal-800 rounded-xl px-3 py-2 cursor-move">Tidak boleh salat sebelum mandi</div>
+          </div>
+          <button id="check-hj" class="mt-3 bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Periksa</button>
+          <div id="hj2-msg" class="mt-2 text-sm"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Aurat Section -->
+    <section id="aurat" class="tab-panel mt-6 hidden grid lg:grid-cols-2 gap-6">
+      <article class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h2 class="text-2xl font-bold">Batasan Aurat dalam Islam</h2>
+        <p class="text-white/90">Aurat adalah bagian tubuh yang wajib ditutup. Aturan berbeda untuk laki-laki dan perempuan, sesuai syariat.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-emerald-500/20 p-4">
+            <h3 class="font-semibold">Laki-laki</h3>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-white/90">
+              <li>Antara pusar dan lutut</li>
+              <li>Wajib tertutup saat salat dan di depan non-mahram</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-indigo-500/20 p-4">
+            <h3 class="font-semibold">Perempuan</h3>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-white/90">
+              <li>Seluruh tubuh kecuali wajah dan telapak tangan (ulama beda pendapat pada sebagian kondisi)</li>
+              <li>Berpakaian sopan, tidak ketat/tembus pandang</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <aside class="bg-white/10 backdrop-blur rounded-2xl p-5 md:p-6 space-y-4">
+        <h3 class="text-xl font-bold">Simulasi Aurat</h3>
+        <p class="text-white/90">Nyalakan pelindung untuk menutup bagian aurat. Lihat indikator.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="bg-white/10 rounded-xl p-4" id="sim-lk">
+            <div class="flex items-center justify-between">
+              <h4 class="font-semibold">Laki-laki</h4>
+              <span id="lk-status" class="text-xs px-2 py-1 rounded-full bg-red-500/80">Belum tertutup</span>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button class="toggle-cover bg-white text-teal-800 rounded-lg px-3 py-1.5" data-target="#lk-pusar">Tutup Pusar</button>
+              <button class="toggle-cover bg-white text-teal-800 rounded-lg px-3 py-1.5" data-target="#lk-lutut">Tutup Lutut</button>
+              <button class="toggle-cover bg-white text-teal-800 rounded-lg px-3 py-1.5" data-target="#lk-paha">Tutup Paha</button>
+            </div>
+            <div class="relative mt-4 h-40 bg-white/5 rounded-xl overflow-hidden">
+              <!-- Simple body blocks -->
+              <div class="absolute inset-x-0 top-2 mx-auto w-24 h-6 bg-white/20 rounded"></div>
+              <div class="absolute inset-x-0 top-10 mx-auto w-28 h-16 bg-white/20 rounded"></div>
+              <div id="lk-pusar" class="absolute left-1/2 -translate-x-1/2 top-24 w-10 h-4 bg-red-400/80 rounded"></div>
+              <div id="lk-paha" class="absolute left-1/2 -translate-x-1/2 top-28 w-20 h-10 bg-red-400/80 rounded"></div>
+              <div id="lk-lutut" class="absolute left-1/2 -translate-x-1/2 top-40 w-16 h-6 bg-red-400/80 rounded"></div>
+            </div>
+          </div>
+
+          <div class="bg-white/10 rounded-xl p-4" id="sim-pr">
+            <div class="flex items-center justify-between">
+              <h4 class="font-semibold">Perempuan</h4>
+              <span id="pr-status" class="text-xs px-2 py-1 rounded-full bg-red-500/80">Belum tertutup</span>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button class="toggle-cover bg-white text-teal-800 rounded-lg px-3 py-1.5" data-target="#pr-rambut">Tutup Rambut</button>
+              <button class="toggle-cover bg-white text-teal-800 rounded-lg px-3 py-1.5" data-target="#pr-lengan">Tutup Lengan</button>
+              <button class="toggle-cover bg-white text-teal-800 rounded-lg px-3 py-1.5" data-target="#pr-kaki">Tutup Kaki</button>
+            </div>
+            <div class="relative mt-4 h-40 bg-white/5 rounded-xl overflow-hidden">
+              <!-- Simple body blocks -->
+              <div class="absolute inset-x-0 top-2 mx-auto w-20 h-6 bg-white/20 rounded-full" ></div>
+              <div class="absolute inset-x-0 top-10 mx-auto w-28 h-16 bg-white/20 rounded"></div>
+              <div id="pr-rambut" class="absolute left-1/2 -translate-x-1/2 top-2 w-20 h-6 bg-red-400/80 rounded-full"></div>
+              <div id="pr-lengan" class="absolute left-1/2 -translate-x-1/2 top-14 w-28 h-6 bg-red-400/80 rounded"></div>
+              <div id="pr-kaki" class="absolute left-1/2 -translate-x-1/2 top-36 w-24 h-6 bg-red-400/80 rounded"></div>
+            </div>
+          </div>
+        </div>
+        <button id="check-aurat" class="mt-2 bg-white text-teal-700 font-semibold px-4 py-2 rounded-xl hover:bg-yellow-300 hover:text-teal-900 transition">Periksa</button>
+        <div id="aurat-msg" class="mt-2 text-sm"></div>
+      </aside>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-white/80">
+      <p>Dibuat oleh Canva Code • Simpel, indah, dan interaktif</p>
+    </footer>
+  </main>
+
+  <script>
+    // State & helpers
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const state = {
+      completed: new Set(JSON.parse(localStorage.getItem('pai6_completed') || '[]')),
+      stepIndex: parseInt(localStorage.getItem('alaq_step') || '0', 10)
+    };
+    const saveProgress = () => {
+      localStorage.setItem('pai6_completed', JSON.stringify([...state.completed]));
+    };
+    const markDone = (key) => {
+      if (!state.completed.has(key)) {
+        state.completed.add(key);
+        saveProgress();
+        flashConfetti();
+        updateProgress();
+      }
+    };
+    const updateProgress = () => {
+      const totalTasks = 12; // + mukallaf (2), haid-junub (2), aurat (1) = +5
+      const done = Math.min(state.completed.size, totalTasks);
+      const pct = Math.round((done / totalTasks) * 100);
+      $('#progressText').textContent = pct + '%';
+      $('#progressArc').setAttribute('stroke-dasharray', `${pct} 100`);
+    };
+    const flashConfetti = () => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.textContent = '🎉✨';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 900);
+    };
+
+    // Tabs
+    const switchTab = (id) => {
+      $$('.tab-panel').forEach(p => p.classList.add('hidden'));
+      $$('.tab-btn').forEach(b => b.classList.remove('active','ring-2','ring-yellow-300'));
+      $('#'+id).classList.remove('hidden');
+      const btn = document.querySelector(`.tab-btn[data-tab="${id}"]`);
+      if (btn) { btn.classList.add('active','ring-2','ring-yellow-300'); }
+      // Save hash for internal navigation without redirect
+      history.replaceState(null, '', '#'+id);
+    };
+    $$('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    // Restore tab from hash
+    const initial = location.hash?.replace('#','') || 'islam-iman';
+    switchTab(initial);
+
+    // Reset
+    $('#resetBtn').addEventListener('click', () => {
+      if (confirm('Reset semua kemajuan?')) {
+        localStorage.removeItem('pai6_completed');
+        localStorage.removeItem('alaq_step');
+        state.completed.clear();
+        state.stepIndex = 0;
+        // reset UI bits
+        $('#alaq-msg').textContent = '';
+        $('#quiz-ii-msg').textContent = '';
+        $('#match-msg').textContent = '';
+        $('#qh-msg').textContent = '';
+        $('#qh2-msg').textContent = '';
+        $('#skenario-msg').textContent = '';
+        $('#anger-msg').textContent = '';
+        $$('#steps-alaq .step').forEach((el,i)=> {
+          el.classList.toggle('opacity-60', i>0);
+        });
+        updateProgress();
+      }
+    });
+
+    // Quiz: Islam & Iman
+    $('#quiz-ii').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = new FormData(e.target).get('q1');
+      const msg = $('#quiz-ii-msg');
+      if (val === 'b') {
+        msg.textContent = 'Benar! Iman adalah keyakinan yang kuat dalam hati, diucapkan, dan diamalkan.';
+        msg.className = 'text-sm text-emerald-200';
+        markDone('quiz-ii');
+      } else if (val) {
+        msg.textContent = 'Belum tepat. Coba baca lagi bagian “Iman (keyakinan batin)”.';
+        msg.className = 'text-sm text-yellow-200';
+      } else {
+        msg.textContent = 'Pilih salah satu jawaban ya.';
+        msg.className = 'text-sm text-white/90';
+      }
+    });
+
+    // Drag & Drop helpers
+    const setupDragDrop = (containerSel) => {
+      $$(containerSel + ' .drag').forEach(el => {
+        el.addEventListener('dragstart', (ev) => {
+          ev.dataTransfer.setData('text/plain', el.dataset.answer);
+          ev.dataTransfer.setData('text/id', el.id || (el.id = 'drag-'+Math.random().toString(36).slice(2)));
+          setTimeout(() => el.classList.add('opacity-60'), 0);
+        });
+        el.addEventListener('dragend', () => el.classList.remove('opacity-60'));
+      });
+      $$(containerSel + ' .drop-target').forEach(target => {
+        target.addEventListener('dragover', (ev) => { ev.preventDefault(); target.classList.add('drag-over'); });
+        target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
+        target.addEventListener('drop', (ev) => {
+          ev.preventDefault();
+          target.classList.remove('drag-over');
+          const id = ev.dataTransfer.getData('text/id');
+          const dragged = document.getElementById(id);
+          if (!dragged) return;
+          const allowMultiple = containerSel === '#mukallaf' || containerSel === '#haid-junub';
+          // If single mode, replace existing; if multiple, just append
+          if (!allowMultiple) {
+            const bank = $(containerSel + ' #drag-bank') || $(containerSel + ' #drag-qh') || $(containerSel + ' #drag-hj') || $(containerSel + ' #drag-muk');
+            if (target.querySelector('.drag') && bank) {
+              bank.appendChild(target.querySelector('.drag'));
+            }
+          }
+          target.appendChild(dragged);
+        });
+      });
+    };
+
+    setupDragDrop('#islam-iman');
+    setupDragDrop('#quran-hadis');
+    setupDragDrop('#mukallaf');
+    setupDragDrop('#haid-junub');
+
+    // Check match (Islam & Iman)
+    $('#check-match').addEventListener('click', () => {
+      let correct = 0, total = 3;
+      $$('#islam-iman .drop-target').forEach(t => {
+        const child = t.querySelector('.drag');
+        if (child && child.dataset.answer === t.dataset.target) correct++;
+      });
+      const msg = $('#match-msg');
+      if (correct === total) {
+        msg.textContent = 'Mantap! Semua pasangan sudah tepat.';
+        msg.className = 'mt-2 text-sm text-emerald-200';
+        markDone('match-ii');
+      } else {
+        msg.textContent = `Baru ${correct}/${total} benar. Coba susun lagi ya.`;
+        msg.className = 'mt-2 text-sm text-yellow-200';
+      }
+    });
+
+    // Qur'an vs Hadis - True/False
+    $('#quiz-qh').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-v]');
+      if (!btn) return;
+      e.preventDefault();
+      const val = btn.dataset.v;
+      const msg = $('#qh-msg');
+      if (val === 'benar') {
+        msg.textContent = 'Betul! Al-Qur’an seluruhnya adalah firman Allah.';
+        msg.className = 'text-sm text-emerald-200';
+        markDone('qh-true');
+      } else {
+        msg.textContent = 'Kurang tepat. Al-Qur’an adalah firman Allah, bukan ucapan manusia.';
+        msg.className = 'text-sm text-yellow-200';
+      }
+    });
+
+    // Qur'an vs Hadis - Sort
+    $('#check-qh').addEventListener('click', () => {
+      const targets = $$('#quran-hadis .drop-target');
+      let ok = 0, total = 3;
+      targets.forEach(t => {
+        $$('.drag', t).forEach(d => {
+          if (d.dataset.answer === t.dataset.target) ok++;
+        });
+      });
+      const msg = $('#qh2-msg');
+      if (ok === total) {
+        msg.textContent = 'Hebat! Semua sudah sesuai kategori.';
+        msg.className = 'mt-2 text-sm text-emerald-200';
+        markDone('qh-sort');
+      } else {
+        msg.textContent = `Baru ${ok}/${total} tepat. Perhatikan perannya, ya.`;
+        msg.className = 'mt-2 text-sm text-yellow-200';
+      }
+    });
+
+    // Haid & Junub - Quiz
+    $('#quiz-hj').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = new FormData(e.target).get('hj1');
+      const msg = $('#hj-msg');
+      if (val === 'b') {
+        msg.textContent = 'Benar! Saat junub wajib mandi untuk suci.';
+        msg.className = 'text-sm text-emerald-200';
+        markDone('hj-quiz');
+      } else if (val) {
+        msg.textContent = 'Belum tepat. Junub memerlukan mandi wajib.';
+        msg.className = 'text-sm text-yellow-200';
+      } else {
+        msg.textContent = 'Pilih jawaban dahulu ya.';
+        msg.className = 'text-sm text-white/90';
+      }
+    });
+
+    // Haid & Junub - Drag
+    $('#check-hj').addEventListener('click', () => {
+      const targets = $$('#haid-junub .drop-target');
+      let ok = 0, total = 3;
+      targets.forEach(t => {
+        $$('.drag', t).forEach(d => {
+          if (d.dataset.answer === t.dataset.target) ok++;
+        });
+      });
+      const msg = $('#hj2-msg');
+      if (ok === total) {
+        msg.textContent = 'Mantap! Kamu bisa membedakan haid dan junub.';
+        msg.className = 'mt-2 text-sm text-emerald-200';
+        markDone('hj-drag');
+      } else {
+        msg.textContent = `Baru ${ok}/${total} tepat. Coba lagi ya.`;
+        msg.className = 'mt-2 text-sm text-yellow-200';
+      }
+    });
+
+    // Mukallaf - Cards
+    $$('.card-muk').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const correct = btn.dataset.correct === 'true';
+        const msg = $('#muk-msg1');
+        if (correct) {
+          msg.textContent = 'Tepat! Mukallaf itu sudah baligh dan berakal.';
+          msg.className = 'mt-2 text-sm text-emerald-200';
+          markDone('muk-card');
+        } else {
+          msg.textContent = 'Belum tepat. Perhatikan syarat: baligh dan berakal.';
+          msg.className = 'mt-2 text-sm text-yellow-200';
+        }
+      });
+    });
+
+    // Mukallaf - Drag check
+    $('#check-muk').addEventListener('click', () => {
+      const targets = $$('#mukallaf .drop-target');
+      let ok = 0, total = 4;
+      targets.forEach(t => {
+        $$('.drag', t).forEach(d => {
+          if (d.dataset.answer === t.dataset.target) ok++;
+        });
+      });
+      const msg = $('#muk-msg2');
+      if (ok === total) {
+        msg.textContent = 'Bagus! Kamu paham syarat mukallaf.';
+        msg.className = 'mt-2 text-sm text-emerald-200';
+        markDone('muk-drag');
+      } else {
+        msg.textContent = `Baru ${ok}/${total} tepat. Coba perhatikan lagi.`;
+        msg.className = 'mt-2 text-sm text-yellow-200';
+      }
+    });
+
+    // Al-'Alaq Fill
+    $('#quiz-alaq').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const a = (fd.get('a') || '').trim().toLowerCase();
+      const b = (fd.get('b') || '').trim().toLowerCase();
+      const msg = $('#alaq-msg');
+      const aOk = ['allah','allah swt','allah swt.'].includes(a);
+      const bOk = ['ilmu','pengetahuan','ilmu pengetahuan'].includes(b);
+      if (aOk && bOk) {
+        msg.textContent = 'Bagus! Membaca dengan menyebut nama Allah, dan ilmu bermanfaat.';
+        msg.className = 'text-sm text-emerald-200';
+        markDone('alaq-fill');
+      } else {
+        msg.textContent = 'Coba lagi. Petunjuk: a) nama siapa? b) apa yang bermanfaat?';
+        msg.className = 'text-sm text-yellow-200';
+      }
+    });
+
+    // Al-'Alaq Steps
+    const renderSteps = () => {
+      const steps = $$('#steps-alaq .step');
+      steps.forEach((el,i) => {
+        el.classList.toggle('opacity-60', i > state.stepIndex);
+      });
+      $('#step-msg').textContent = `Langkah ${state.stepIndex+1} dari ${steps.length}`;
+      if (state.stepIndex === steps.length - 1) {
+        markDone('alaq-steps');
+      }
+    };
+    renderSteps();
+    $('#next-step').addEventListener('click', () => {
+      const steps = $$('#steps-alaq .step');
+      state.stepIndex = Math.min(state.stepIndex + 1, steps.length - 1);
+      localStorage.setItem('alaq_step', String(state.stepIndex));
+      renderSteps();
+    });
+    $('#prev-step').addEventListener('click', () => {
+      state.stepIndex = Math.max(state.stepIndex - 1, 0);
+      localStorage.setItem('alaq_step', String(state.stepIndex));
+      renderSteps();
+    });
+
+    // Skenario Ali Imran 134
+    $$('.btn-skenario').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const correct = btn.dataset.correct === 'true';
+        const msg = $('#skenario-msg');
+        if (correct) {
+          msg.textContent = 'Pilihan bagus! Itu mencerminkan takwa: menahan amarah, memaafkan, dan berbuat baik.';
+          msg.className = 'mt-2 text-sm text-emerald-200';
+          markDone('skenario');
+        } else {
+          msg.textContent = 'Coba lagi. Ingat ciri orang bertakwa menurut QS. Ali Imran 134.';
+          msg.className = 'mt-2 text-sm text-yellow-200';
+        }
+      });
+    });
+
+    // Aurat toggles
+    const toggleButtons = $$('.toggle-cover');
+    const isCovered = (sel) => $(sel).classList.contains('!bg-emerald-400/80');
+    const updateStatus = () => {
+      const lkOk = isCovered('#lk-pusar') && isCovered('#lk-paha') && isCovered('#lk-lutut');
+      const prOk = isCovered('#pr-rambut') && isCovered('#pr-lengan') && isCovered('#pr-kaki');
+      $('#lk-status').textContent = lkOk ? 'Tertutup' : 'Belum tertutup';
+      $('#lk-status').className = 'text-xs px-2 py-1 rounded-full ' + (lkOk ? 'bg-emerald-500/80' : 'bg-red-500/80');
+      $('#pr-status').textContent = prOk ? 'Tertutup' : 'Belum tertutup';
+      $('#pr-status').className = 'text-xs px-2 py-1 rounded-full ' + (prOk ? 'bg-emerald-500/80' : 'bg-red-500/80');
+    };
+    toggleButtons.forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const target = $(b.dataset.target);
+        if (!target) return;
+        target.classList.toggle('!bg-emerald-400/80');
+        target.classList.toggle('bg-red-400/80');
+        updateStatus();
+      });
+    });
+    updateStatus();
+
+    $('#check-aurat').addEventListener('click', () => {
+      const ok = isCovered('#lk-pusar') && isCovered('#lk-paha') && isCovered('#lk-lutut') && isCovered('#pr-rambut') && isCovered('#pr-lengan') && isCovered('#pr-kaki');
+      const msg = $('#aurat-msg');
+      if (ok) {
+        msg.textContent = 'Bagus! Kedua model aurat sudah tertutup sesuai ketentuan.';
+        msg.className = 'mt-2 text-sm text-emerald-200';
+        markDone('aurat-sim');
+      } else {
+        msg.textContent = 'Masih ada yang terbuka. Pastikan semua indikator berubah hijau.';
+        msg.className = 'mt-2 text-sm text-yellow-200';
+      }
+    });
+
+    // Timer Tenang 10 detik
+    let timer = null, elapsed = 0, total = 10;
+    const resetTimerUI = () => {
+      elapsed = 0;
+      $('#timer-bar').style.width = '0%';
+      $('#timer-text').textContent = '';
+    };
+    $('#start-timer').addEventListener('click', () => {
+      clearInterval(timer);
+      resetTimerUI();
+      timer = setInterval(() => {
+        elapsed += 0.1;
+        const pct = Math.min(100, (elapsed/total)*100);
+        $('#timer-bar').style.width = pct + '%';
+        $('#timer-text').textContent = `${Math.ceil(total - elapsed)} detik lagi...`;
+        if (elapsed >= total) {
+          clearInterval(timer);
+          $('#timer-text').textContent = 'Selesai! Rasanya lebih tenang, kan?';
+          // Timer tidak dihitung sebagai tugas wajib agar fokus ke materi
+        }
+      }, 100);
+    });
+
+    // Drag to order: langkah amarah
+    const correctOrder = [
+      'Ucapkan ta’awuz',
+      'Diam dan tenangkan diri',
+      'Ubah posisi: berdiri → duduk → berbaring',
+      'Ambil wudu'
+    ];
+    const renderAngerList = (arr) => {
+      const ul = $('#order-anger');
+      ul.innerHTML = '';
+      arr.forEach((text, idx) => {
+        const li = document.createElement('li');
+        li.className = 'bg-white text-teal-800 rounded-xl p-3 flex items-center justify-between gap-3';
+        li.draggable = true;
+        li.dataset.idx = idx;
+        li.innerHTML = `<span class="font-semibold">☰</span><span class="flex-1">${text}</span>`;
+        ul.appendChild(li);
+      });
+      // drag logic
+      $$('#order-anger li').forEach(li => {
+        li.addEventListener('dragstart', (e)=> { e.dataTransfer.setData('text/plain', li.dataset.idx); li.classList.add('opacity-60'); });
+        li.addEventListener('dragend', ()=> li.classList.remove('opacity-60'));
+        li.addEventListener('dragover', (e)=> e.preventDefault());
+        li.addEventListener('drop', (e)=> {
+          e.preventDefault();
+          const from = parseInt(e.dataTransfer.getData('text/plain'),10);
+          const to = Array.from(li.parentElement.children).indexOf(li);
+          // reorder DOM
+          const ul = li.parentElement;
+          const items = Array.from(ul.children);
+          const moving = items[from];
+          ul.insertBefore(moving, (from < to) ? items[to].nextSibling : items[to]);
+          // reindex
+          Array.from(ul.children).forEach((child,i)=> child.dataset.idx = i);
+        });
+      });
+    };
+    const shuffled = [...correctOrder].sort(()=>Math.random()-0.5);
+    renderAngerList(shuffled);
+
+    $('#shuffle-anger').addEventListener('click', () => {
+      const again = [...correctOrder].sort(()=>Math.random()-0.5);
+      renderAngerList(again);
+      $('#anger-msg').textContent = '';
+    });
+
+    $('#check-anger').addEventListener('click', () => {
+      const items = $$('#order-anger li span:nth-child(2)');
+      const arr = items.map(el => el.textContent);
+      const ok = arr.every((t,i)=> t === correctOrder[i]);
+      const msg = $('#anger-msg');
+      if (ok) {
+        msg.textContent = 'Tepat! Urutan langkah saat marah sudah benar.';
+        msg.className = 'mt-2 text-sm text-emerald-600 bg-emerald-200/80 rounded-lg px-3 py-1';
+        markDone('anger-order');
+      } else {
+        msg.textContent = 'Belum tepat. Petunjuk: mulai dengan ta’awuz, tenangkan diri, ubah posisi, lalu wudu.';
+        msg.className = 'mt-2 text-sm text-yellow-800 bg-yellow-200/80 rounded-lg px-3 py-1';
+      }
+    });
+
+    // Initial progress update
+    updateProgress();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'982ef49256fb40d7',t:'MTc1ODUxNDI1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
